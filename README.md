@@ -29,6 +29,45 @@ The internet is now a landfill of skills, MCPs, plugins, templates, and half-fin
 
 ## Install
 
+Three distribution channels:
+
+### 1. Claude Code plugin (marketplace)
+
+```text
+/plugin marketplace add mturac/skill-hunter
+/plugin install skill-hunter
+```
+
+Claude installs both the skill and the `UserPromptSubmit` hook from the plugin manifest — no clone, no shell script.
+
+### 2. Codex CLI plugin
+
+```bash
+codex plugin marketplace add mturac/skill-hunter
+codex plugin install skill-hunter
+```
+
+### 3. `npx skills` (OpenClaw, Hermes, and any agentskills.io-compatible runtime)
+
+```bash
+npx skills add mturac/skill-hunter@skill_hunter -g -y
+```
+
+Installs into `~/.agents/skills/skill_hunter/` (read by OpenClaw, Hermes, and other agentskills consumers). The `-g` flag is user-wide; drop it for a per-project install into `./.agents/skills/`.
+
+### 4. Clone + `./install.sh` (development or non-plugin hosts)
+
+Useful when you want the skill to live as a symlink to a checkout so edits propagate without reinstalling:
+
+```bash
+git clone https://github.com/mturac/skill-hunter.git
+cd skill-hunter
+./install.sh all           # Claude Code + Codex CLI (skill + hook)
+./install.sh status        # verify
+```
+
+---
+
 Skill Hunter ships as a **skill + hook pair** for each runtime:
 
 - The **skill** (`SKILL.md`) gets picked up when the user's prompt matches its description — the standard [agentskills.io](https://agentskills.io) path.

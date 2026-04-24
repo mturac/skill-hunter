@@ -26,7 +26,8 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_SRC="$REPO_DIR/SKILL.md"
+SKILL_DIR="$REPO_DIR/skills/skill_hunter"
+SKILL_SRC="$SKILL_DIR/SKILL.md"
 HOOK_SRC="$REPO_DIR/hooks/skill-hunter-hook.sh"
 TARGET="${1:-}"
 FORCE=0
@@ -62,14 +63,14 @@ install_skill_symlink() {
   mkdir -p "$(dirname "$dest")"
   if [[ -L "$dest" ]]; then
     local current; current="$(readlink "$dest")"
-    if [[ "$current" == "$REPO_DIR" ]]; then ok "[$runtime skill] already linked"; return 0; fi
+    if [[ "$current" == "$SKILL_DIR" ]]; then ok "[$runtime skill] already linked"; return 0; fi
     [[ $FORCE -eq 0 ]] && { warn "[$runtime skill] symlink → $current (--force to replace)"; return 0; }
     rm -f "$dest"
   elif [[ -e "$dest" ]]; then
     [[ $FORCE -eq 0 ]] && { warn "[$runtime skill] $dest exists (--force to replace)"; return 0; }
     remove_path "$dest"
   fi
-  ln -sfn "$REPO_DIR" "$dest"
+  ln -sfn "$SKILL_DIR" "$dest"
   ok "[$runtime skill] → $dest"
 }
 
