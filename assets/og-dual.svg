@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="-apple-system, 'SF Pro Display', Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#05020f"/>
+      <stop offset="45%" stop-color="#180a2e"/>
+      <stop offset="100%" stop-color="#2d0836"/>
+    </linearGradient>
+    <linearGradient id="accentPink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="term" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12131a"/>
+      <stop offset="100%" stop-color="#0b0c12"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <!-- ambient glows -->
+  <ellipse cx="420" cy="460" rx="540" ry="260" fill="#a855f7" opacity="0.22" filter="url(#glow)"/>
+  <ellipse cx="1180" cy="460" rx="540" ry="260" fill="#06b6d4" opacity="0.18" filter="url(#glow)"/>
+
+  <!-- Header -->
+  <text x="80" y="92" font-size="68" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
+    SKILL <tspan fill="url(#accentPink)">HUNTER</tspan>
+  </text>
+  <text x="80" y="132" font-size="22" font-weight="500" fill="#cbd5e1" letter-spacing="0.3">
+    One skill + one hook. Live in Claude Code and Codex CLI.
+  </text>
+
+  <!-- LEFT: Claude Code terminal -->
+  <g transform="translate(60, 200)">
+    <rect width="740" height="560" rx="12" ry="12" fill="url(#term)" stroke="#2a2d3a" stroke-width="1"/>
+    <!-- title bar -->
+    <rect width="740" height="36" rx="12" ry="12" fill="#1a1d28"/>
+    <rect y="24" width="740" height="12" fill="#1a1d28"/>
+    <circle cx="22" cy="18" r="6" fill="#ff5f56"/>
+    <circle cx="42" cy="18" r="6" fill="#ffbd2e"/>
+    <circle cx="62" cy="18" r="6" fill="#27c93f"/>
+    <text x="370" y="22" text-anchor="middle" font-size="12" fill="#6b7280" font-family="monospace">claude — Claude Code</text>
+
+    <!-- content -->
+    <g font-family="'SF Mono', 'JetBrains Mono', Menlo, monospace" font-size="14">
+      <text x="24" y="76" fill="#a855f7" font-weight="700" filter="url(#softGlow)">▲ CLAUDE CODE</text>
+
+      <text x="24" y="112" fill="#64748b">❯</text>
+      <text x="48" y="112" fill="#e2e8f0">Write a script that saves our Slack messages to</text>
+      <text x="48" y="132" fill="#e2e8f0">a daily CSV.</text>
+
+      <text x="24" y="170" fill="#a855f7" font-style="italic">⟳ Skill Discovery Pass...</text>
+
+      <text x="24" y="210" fill="#94a3b8">A reusable tool fits this.</text>
+
+      <text x="24" y="240" fill="#cbd5e1" font-weight="600">Best candidate:</text>
+      <text x="24" y="266" fill="#94a3b8">• Name: </text><text x="110" y="266" fill="#22d3ee">slack_sdk.WebClient</text>
+      <text x="24" y="288" fill="#94a3b8">• Type: Official Slack Python SDK</text>
+      <text x="24" y="310" fill="#94a3b8">• Why:  official · maintained · handles rate limits</text>
+      <text x="24" y="332" fill="#94a3b8">• Risk: bot token with channels:history scope</text>
+      <text x="24" y="354" fill="#94a3b8">• Effort: ~30 lines + daily cron</text>
+
+      <text x="24" y="394" fill="#64748b">Alternatives: slackdump · Zapier · n8n</text>
+
+      <text x="24" y="440" fill="#fbbf24" font-weight="700">→ Use this?</text>
+      <text x="24" y="464" fill="#e2e8f0">1. Yes, slack_sdk</text>
+      <text x="24" y="486" fill="#e2e8f0">2. Show alternatives</text>
+      <text x="24" y="508" fill="#e2e8f0">3. Manuel yazacağım</text>
+    </g>
+  </g>
+
+  <!-- RIGHT: Codex terminal -->
+  <g transform="translate(800, 200)">
+    <rect width="740" height="560" rx="12" ry="12" fill="url(#term)" stroke="#2a2d3a" stroke-width="1"/>
+    <rect width="740" height="36" rx="12" ry="12" fill="#1a1d28"/>
+    <rect y="24" width="740" height="12" fill="#1a1d28"/>
+    <circle cx="22" cy="18" r="6" fill="#ff5f56"/>
+    <circle cx="42" cy="18" r="6" fill="#ffbd2e"/>
+    <circle cx="62" cy="18" r="6" fill="#27c93f"/>
+    <text x="370" y="22" text-anchor="middle" font-size="12" fill="#6b7280" font-family="monospace">codex — Codex CLI</text>
+
+    <g font-family="'SF Mono', 'JetBrains Mono', Menlo, monospace" font-size="14">
+      <text x="24" y="76" fill="#06b6d4" font-weight="700" filter="url(#softGlow)">⬡ CODEX CLI</text>
+
+      <text x="24" y="112" fill="#64748b">❯</text>
+      <text x="48" y="112" fill="#e2e8f0">Scrape competitor prices from 5 e-commerce</text>
+      <text x="48" y="132" fill="#e2e8f0">sites daily and dump into a CSV.</text>
+
+      <text x="24" y="170" fill="#06b6d4" font-style="italic">⟳ Skill Discovery Pass...</text>
+
+      <text x="24" y="210" fill="#94a3b8">Three viable options:</text>
+
+      <text x="24" y="240" fill="#22d3ee" font-weight="600">1. Playwright + node-cron</text>
+      <text x="44" y="260" fill="#64748b">Best for: JS-heavy SPAs, anti-bot defenses</text>
+
+      <text x="24" y="290" fill="#22d3ee" font-weight="600">2. Scrapy</text>
+      <text x="44" y="310" fill="#64748b">Best for: high-volume static HTML</text>
+      <text x="44" y="328" fill="#64748b">Cons: no JS rendering · Python-only</text>
+
+      <text x="24" y="358" fill="#22d3ee" font-weight="600">3. Firecrawl (hosted)</text>
+      <text x="44" y="378" fill="#64748b">Cons: paid · data leaves your network</text>
+
+      <text x="24" y="422" fill="#94a3b8">Recommendation: <tspan fill="#a3e635" font-weight="700">Playwright</tspan> — 3 of 5 sites are SPAs.</text>
+
+      <text x="24" y="460" fill="#fbbf24" font-weight="700">→ Use this?</text>
+      <text x="24" y="484" fill="#e2e8f0">1. Yes   2. No, build manually   3. Alternatives</text>
+    </g>
+  </g>
+
+  <!-- Footer strip -->
+  <g transform="translate(80, 830)" font-size="16" font-family="'SF Mono', monospace">
+    <text fill="#a855f7" font-weight="700">/plugin install skill-hunter@skill-hunter</text>
+    <text x="520" fill="#06b6d4" font-weight="700">codex plugin marketplace add mturac/skill-hunter</text>
+    <text x="1520" text-anchor="end" fill="#cbd5e1">github.com/mturac/skill-hunter</text>
+  </g>
+</svg>
