@@ -7,9 +7,10 @@
 # Targets:
 #   claude        Install as user-wide Claude Code skill (~/.claude/skills/skill_hunter/SKILL.md)
 #   claude-md     Write/append CLAUDE.md in the current (or --dir) project
-#   openclaw      Install as OpenClaw skill (~/.openclaw/skills/skill_hunter/SKILL.md)
+#   shared        Install to ~/.agents/skills/skill_hunter  (read by Codex AND OpenClaw)
+#   openclaw      Install to ~/.openclaw/skills/skill_hunter (OpenClaw reads this too; no symlink allowed)
 #   hermes        Install as Hermes skill (~/.hermes/skills/utility/skill_hunter/SKILL.md)
-#   codex         Write/append AGENTS.md in the current (or --dir) project
+#   codex-md      Write/append AGENTS.md in the current (or --dir) project
 #   cursor        Write .cursor/rules/skill-hunter.md in the current (or --dir) project
 #   all           Install everywhere above that is applicable to this machine
 #
@@ -66,8 +67,19 @@ install_md() {
 do_claude()    { install_skill "claude"   "$HOME/.claude/skills/skill_hunter"; }
 do_openclaw()  { install_skill "openclaw" "$HOME/.openclaw/skills/skill_hunter"; }
 do_hermes()    { install_skill "hermes"   "$HOME/.hermes/skills/utility/skill_hunter"; }
+do_shared()    {
+  # ~/.agents/skills/ is read by Codex and OpenClaw. Codex follows symlinks,
+  # OpenClaw does not — so we prefer a symlink here for editability, and fall
+  # back to a copy if you pass --force on a non-Codex machine.
+  local dest="$HOME/.agents/skills/skill_hunter"
+  mkdir -p "$HOME/.agents/skills"
+  [[ -e "$dest" && $FORCE -eq 0 ]] && { echo "[shared] exists — skipping (use --force): $dest"; return 0; }
+  rm -f "$dest" 2>/dev/null
+  ln -sfn "$REPO_DIR" "$dest"
+  echo "[shared] symlinked → $dest  (read by Codex + OpenClaw)"
+}
 do_claude_md() { install_md "claude-md" "CLAUDE.md" "$REPO_DIR/adapters/claude-code/CLAUDE.md"; }
-do_codex()     { install_md "codex"     "AGENTS.md" "$REPO_DIR/adapters/codex/AGENTS.md"; }
+do_codex_md()  { install_md "codex-md" "AGENTS.md" "$REPO_DIR/adapters/codex/AGENTS.md"; }
 do_cursor()    {
   mkdir -p "$DIR/.cursor/rules"
   cp "$REPO_DIR/adapters/cursor/skill-hunter.md" "$DIR/.cursor/rules/skill-hunter.md"
@@ -77,15 +89,17 @@ do_cursor()    {
 case "$TARGET" in
   claude)    do_claude ;;
   claude-md) do_claude_md ;;
+  shared)    do_shared ;;
   openclaw)  do_openclaw ;;
   hermes)    do_hermes ;;
-  codex)     do_codex ;;
+  codex-md)  do_codex_md ;;
   cursor)    do_cursor ;;
   all)
     do_claude
-    do_openclaw
+    do_shared       # covers Codex + gives OpenClaw a second read path (symlink)
+    do_openclaw     # non-symlink fallback for OpenClaw which rejects symlinks
     do_hermes
-    echo "(skipping claude-md/codex/cursor — those are per-project; run them in the project dir)"
+    echo "(skipping claude-md/codex-md/cursor — those are per-project; run them in the project dir)"
     ;;
   *) echo "Unknown target: $TARGET" >&2; usage ;;
 esac

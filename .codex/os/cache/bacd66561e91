@@ -1,0 +1,30 @@
+# Example 02 — Scrape Competitor Prices Daily
+
+**User**
+
+> Scrape competitor prices from 5 e-commerce sites daily and dump into a CSV.
+
+**Skill Hunter**
+
+```
+Three viable options:
+
+1. Playwright + node-cron
+   - Best for: sites with heavy JS rendering, login walls, anti-bot defenses
+   - Pros: battle-tested, headless, full browser control, great debugging
+   - Cons: heavier runtime, slower per-page
+
+2. Scrapy
+   - Best for: high-volume static HTML scraping with pipelines
+   - Pros: fast, mature, built-in throttling + retries + CSV export
+   - Cons: no JS rendering out of the box, Python-only
+
+3. Firecrawl (hosted)
+   - Best for: teams that want zero infra
+   - Pros: one API call, handles JS + anti-bot
+   - Cons: paid, rate limits, data leaves your network, needs API key
+
+Recommendation: use Playwright + node-cron, because 3 of the 5 sites you listed
+are SPAs and Scrapy would need a Splash/Selenium bolt-on anyway. Firecrawl is
+overkill and pushes pricing data through a third party.
+```

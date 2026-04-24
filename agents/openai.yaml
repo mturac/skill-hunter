@@ -1,0 +1,7 @@
+interface:
+  display_name: "Skill Hunter"
+  short_description: "Scan the ecosystem for existing skills/tools/MCPs before building from scratch."
+  default_prompt: "Run a Skill Discovery Pass for the following request, then either recommend the best existing tool or explain why custom implementation is the better path: "
+
+policy:
+  allow_implicit_invocation: true
