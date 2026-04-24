@@ -1,5 +1,7 @@
 # Skill Hunter
 
+![Skill Hunter — before you build, scan the ecosystem](./assets/og-image.png)
+
 A pre-execution layer for coding/automation agents (Codex, Claude, OpenClaw, …) that asks a single question before writing any code:
 
 > "Is there already a skill, MCP server, CLI tool, plugin, repo, template, SDK, API, or workflow that can solve this — or accelerate it?"

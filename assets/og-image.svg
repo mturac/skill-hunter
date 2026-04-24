@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="-apple-system, 'SF Pro Display', Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0118"/>
+      <stop offset="50%" stop-color="#1a0b2e"/>
+      <stop offset="100%" stop-color="#2d0836"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="term" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12131a"/>
+      <stop offset="100%" stop-color="#0b0c12"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Glow halo behind terminal -->
+  <ellipse cx="600" cy="350" rx="520" ry="240" fill="#a855f7" opacity="0.22" filter="url(#glow)"/>
+  <ellipse cx="600" cy="350" rx="380" ry="160" fill="#ec4899" opacity="0.18" filter="url(#glow)"/>
+
+  <!-- Title -->
+  <text x="60" y="90" font-size="54" font-weight="800" fill="#ffffff" letter-spacing="-1">
+    SKILL <tspan fill="url(#accent)">HUNTER</tspan>
+  </text>
+  <text x="60" y="128" font-size="20" font-weight="500" fill="#cbd5e1" letter-spacing="0.5">
+    Before you build, scan the ecosystem.
+  </text>
+
+  <!-- Terminal window -->
+  <g transform="translate(60, 170)">
+    <rect width="1080" height="400" rx="12" ry="12" fill="url(#term)" stroke="#2a2d3a" stroke-width="1"/>
+    <!-- title bar -->
+    <rect width="1080" height="36" rx="12" ry="12" fill="#1a1d28"/>
+    <rect y="24" width="1080" height="12" fill="#1a1d28"/>
+    <circle cx="22" cy="18" r="6" fill="#ff5f56"/>
+    <circle cx="42" cy="18" r="6" fill="#ffbd2e"/>
+    <circle cx="62" cy="18" r="6" fill="#27c93f"/>
+    <text x="540" y="22" text-anchor="middle" font-size="12" fill="#6b7280" font-family="monospace">claude — skill-hunter</text>
+
+    <!-- prompt -->
+    <g font-family="'SF Mono', 'JetBrains Mono', Menlo, monospace" font-size="15">
+      <text x="24" y="72" fill="#64748b">❯</text>
+      <text x="48" y="72" fill="#e2e8f0">Scrape competitor prices from 5 e-commerce sites daily.</text>
+
+      <!-- status line -->
+      <text x="24" y="108" fill="#a855f7" font-style="italic">⟳ Skill Discovery Pass...</text>
+
+      <!-- Output -->
+      <text x="24" y="148" fill="#94a3b8">Three viable options:</text>
+
+      <text x="24" y="182" fill="#22d3ee">1. Playwright + node-cron</text>
+      <text x="48" y="202" fill="#64748b">Best for: JS-heavy SPAs, anti-bot defenses</text>
+      <text x="48" y="220" fill="#64748b">Pros: battle-tested · full browser control · great debugging</text>
+
+      <text x="24" y="248" fill="#22d3ee">2. Scrapy</text>
+      <text x="48" y="268" fill="#64748b">Best for: high-volume static HTML with pipelines</text>
+      <text x="48" y="286" fill="#64748b">Cons: no JS rendering · Python-only</text>
+
+      <text x="24" y="314" fill="#22d3ee">3. Firecrawl (hosted)</text>
+      <text x="48" y="334" fill="#64748b">Cons: paid · data leaves your network · needs API key</text>
+
+      <text x="24" y="370" fill="#fbbf24" font-weight="700">→ Use Playwright?  1. Yes   2. No, manual   3. Alternatives</text>
+    </g>
+  </g>
+
+  <!-- bottom strip -->
+  <g transform="translate(60, 600)" font-size="15" fill="#94a3b8" font-family="monospace">
+    <text>claude · codex · openclaw · hermes</text>
+    <text x="1080" text-anchor="end" fill="#cbd5e1">github.com/mturac/skill-hunter</text>
+  </g>
+</svg>
