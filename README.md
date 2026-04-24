@@ -29,20 +29,31 @@ The internet is now a landfill of skills, MCPs, plugins, templates, and half-fin
 
 ## Install
 
-One command, pick your runtime:
+Claude Code, OpenClaw, and Hermes all use the [agentskills.io](https://agentskills.io) `SKILL.md` standard — the same [`SKILL.md`](./SKILL.md) file works for all three. `install.sh` drops it into the right place:
 
 ```bash
-./install.sh claude         # writes ./CLAUDE.md in the current project
-./install.sh claude-skill   # installs as ~/.claude/skills/skill-hunter/SKILL.md (user-wide)
-./install.sh codex          # writes ./AGENTS.md in the current project
-./install.sh cursor         # writes .cursor/rules/skill-hunter.md
-./install.sh openclaw       # copies the system prompt to clipboard to paste into OpenClaw
-./install.sh hermes         # prints the path to adapters/hermes/skill.json
+./install.sh claude      # ~/.claude/skills/skill-hunter/SKILL.md
+./install.sh openclaw    # ~/.openclaw/skills/skill-hunter/SKILL.md
+./install.sh hermes      # ~/.hermes/skills/utility/skill-hunter/SKILL.md
+./install.sh all         # all three at once
 ```
 
-Pre-built adapters live under [`adapters/`](./adapters): `claude-code/`, `claude-skill/`, `codex/`, `cursor/`, `openclaw/`, `hermes/`. The canonical source of truth is [`skill.md`](./skill.md) — all adapters derive from it.
+Per-project (adds to the current directory, not user-wide):
 
-Works with: Claude Code, Codex / OpenAI agents, Cursor, OpenClaw, Hermes, Aider, Continue, and any runtime that honors a system prompt or `AGENTS.md`-style file.
+```bash
+./install.sh claude-md   # ./CLAUDE.md
+./install.sh codex       # ./AGENTS.md
+./install.sh cursor      # ./.cursor/rules/skill-hunter.md
+```
+
+### Alternatives
+
+- **Claude Code**: no restart — skills auto-load on next session.
+- **OpenClaw**: equivalent one-liner via the runtime — `openclaw skills install skill-hunter` once it's published to ClawHub.
+- **Hermes**: drop-in — `~/.hermes/skills/…` is hot-reloaded.
+- **Codex / AGENTS.md**: place `AGENTS.md` at repo root (the file works anywhere Codex reads agent instructions).
+
+The canonical source of truth is [`SKILL.md`](./SKILL.md). Per-project markdown variants live under [`adapters/`](./adapters) (`claude-code/`, `codex/`, `cursor/`).
 
 ## Response shapes
 

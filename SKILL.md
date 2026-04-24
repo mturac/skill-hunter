@@ -1,5 +1,5 @@
 ---
-name: skill-hunter
+name: skill_hunter
 description: Pre-execution layer for coding/automation agents. Before implementing anything, scan for existing skills, MCP servers, CLI tools, plugins, repos, templates, SDKs, APIs, or workflows that already solve the task. Present the best candidate (or a shortlist), evaluate risk, and gate on user approval. Trigger on requests involving file conversion, browser automation, scraping, testing, deployment, CI/CD, image/video generation, design-to-code, API integration, code migration, docs generation, project scaffolding, database analysis, cloud setup, LLM orchestration, or agent workflows.
 ---
 
