@@ -1,0 +1,17 @@
+{
+  "name": "skill-hunter",
+  "displayName": "Skill Hunter",
+  "description": "Pre-execution layer for Codex CLI. Scans for existing skills, MCP servers, CLI tools, plugins, and APIs before implementation, recommends the best candidate with risk/effort assessment, gates on user approval.",
+  "version": "1.1.0",
+  "author": "Mehmet Turaç",
+  "homepage": "https://github.com/mturac/skill-hunter",
+  "repository": "https://github.com/mturac/skill-hunter",
+  "license": "MIT",
+  "skills": [
+    "./skills/skill_hunter"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "shortDescription": "Scan the ecosystem before building from scratch."
+  }
+}

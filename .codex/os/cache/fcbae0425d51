@@ -2,12 +2,6 @@
 
 All notable changes follow [keepachangelog.com](https://keepachangelog.com) and [semver](https://semver.org).
 
-## [1.1.1] — 2026-04-24
-
-### Added
-- Published to ClawHub as `openclaw-skill-hunter` — install with `openclaw skills install openclaw-skill-hunter` or `clawhub install openclaw-skill-hunter`.
-- README documents five install channels (Claude plugin marketplace, Codex plugin marketplace, ClawHub, `npx skills`, and local clone).
-
 ## [1.1.0] — 2026-04-24
 
 ### Added

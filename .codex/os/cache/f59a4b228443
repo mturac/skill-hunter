@@ -1,0 +1,16 @@
+{
+  "name": "skill-hunter",
+  "owner": {
+    "name": "mturac",
+    "url": "https://github.com/mturac"
+  },
+  "plugins": [
+    {
+      "name": "skill-hunter",
+      "source": "./",
+      "description": "Pre-execution layer: scans for existing skills/tools/MCPs before building from scratch, recommends the best candidate, gates on user approval.",
+      "version": "1.1.0",
+      "homepage": "https://github.com/mturac/skill-hunter"
+    }
+  ]
+}

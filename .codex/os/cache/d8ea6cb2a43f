@@ -1,0 +1,18 @@
+{
+  "name": "skill-hunter",
+  "description": "Pre-execution layer for Claude Code. Before implementing anything, scans for existing skills, MCP servers, CLI tools, plugins, repos, templates, SDKs, or APIs that already solve the task, presents the best candidate (or a shortlist) with risk and effort, and asks for approval before writing code.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Mehmet Turaç"
+  },
+  "homepage": "https://github.com/mturac/skill-hunter",
+  "repository": "https://github.com/mturac/skill-hunter",
+  "license": "MIT",
+  "keywords": [
+    "skill-discovery",
+    "pre-execution",
+    "meta-skill",
+    "tool-scout",
+    "agentskills"
+  ]
+}
