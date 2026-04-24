@@ -1,0 +1,93 @@
+# Skill Hunter
+
+A pre-execution layer for coding/automation agents (Codex, Claude, OpenClaw, …) that asks a single question before writing any code:
+
+> "Is there already a skill, MCP server, CLI tool, plugin, repo, template, SDK, API, or workflow that can solve this — or accelerate it?"
+
+If yes, it surfaces the best candidate, evaluates risk, and asks for approval before use.
+If no, it says so plainly and builds manually with a clean, minimal approach.
+
+The core insight: in agent systems, intelligence is not only knowing how to build — it is knowing **when not to build**.
+
+## Why
+
+The internet is now a landfill of skills, MCPs, plugins, templates, and half-finished repos. The bottleneck for agents is no longer *capability* — it is *discovery*. Skill Hunter sits in front of execution and prevents:
+
+- rebuilding what already exists
+- picking the most popular tool instead of the right one
+- pulling in abandoned or unsafe repos
+- silently installing things that need credentials or system access
+
+## How it works
+
+1. **Classify** the request (coding, design, browser automation, file conversion, scraping, CI/CD, …).
+2. **Decide** whether a reusable skill/tool likely exists.
+3. **Search** local skills, project docs, GitHub, MCP registry, package managers, tool docs.
+4. **Evaluate** candidates by relevance, maintenance, docs, stack fit, security, effort, licensing.
+5. **Present** one recommendation, a shortlist of three, or an honest "build it yourself".
+6. **Gate** on user approval before running anything external.
+
+## Install
+
+Claude Code, Codex, OpenClaw, and Hermes all implement the [agentskills.io](https://agentskills.io) `SKILL.md` standard — one [`SKILL.md`](./SKILL.md) file works for all of them.
+
+```bash
+./install.sh shared      # ~/.agents/skills/skill_hunter     (Codex + OpenClaw — user-wide)
+./install.sh claude      # ~/.claude/skills/skill_hunter     (Claude Code — user-wide)
+./install.sh hermes      # ~/.hermes/skills/utility/skill_hunter
+./install.sh openclaw    # ~/.openclaw/skills/skill_hunter   (only if OpenClaw ignores ~/.agents/skills)
+./install.sh all         # every user-wide location that applies
+```
+
+Per-project (current directory, not user-wide):
+
+```bash
+./install.sh claude-md   # ./CLAUDE.md
+./install.sh codex-md    # ./AGENTS.md
+./install.sh cursor      # ./.cursor/rules/skill-hunter.md
+```
+
+### Runtime notes
+
+- **Codex** scans `~/.agents/skills/` and `$REPO/.agents/skills/` and **follows symlinks** — `shared` symlinks this repo in so edits propagate instantly. [Codex Skills docs](https://developers.openai.com/codex/skills).
+- **OpenClaw** scans `~/.agents/skills/` and `~/.openclaw/skills/`, but **rejects symlinks** (the path must resolve inside its skill root). Use the `openclaw` target when a real copy is needed.
+- **Claude Code** reads `~/.claude/skills/`, auto-loads on next session.
+- **Hermes** reads `~/.hermes/skills/`, hot-reloaded (no restart).
+
+The canonical source of truth is [`SKILL.md`](./SKILL.md). Per-project markdown variants live under [`adapters/`](./adapters) (`claude-code/`, `codex/`, `cursor/`). Codex-specific UI metadata lives in [`agents/openai.yaml`](./agents/openai.yaml).
+
+## Response shapes
+
+**One good candidate**
+
+```
+A reusable skill/tool looks like a good fit for this.
+
+Best candidate:
+- Name: …
+- Type: …
+- Why it fits: …
+- Risk: …
+- Effort: …
+
+Use this?
+1. Yes  2. No, build manually  3. Show alternatives
+```
+
+**Shortlist of three** — side-by-side pros/cons + a pick.
+
+**Nothing good exists** — explicit reason (outdated / too broad / unsafe / low quality), then build manually.
+
+## Examples
+
+See [`examples/`](./examples) for real interactions — single-candidate pick, 3-way shortlist, skipped discovery, "build it yourself", and a credential-scope warning.
+
+## Security posture
+
+- Never install or run unknown tools without approval.
+- Always explain credential/permission scope before recommending a tool that needs them.
+- Prefer official and well-maintained sources. Flag abandoned repos.
+
+## License
+
+MIT — see [`LICENSE`](./LICENSE).

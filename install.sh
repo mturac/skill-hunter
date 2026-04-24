@@ -12,6 +12,8 @@
 #   hermes        Install as Hermes skill (~/.hermes/skills/utility/skill_hunter/SKILL.md)
 #   codex-md      Write/append AGENTS.md in the current (or --dir) project
 #   cursor        Write .cursor/rules/skill-hunter.md in the current (or --dir) project
+#   claude-hook   Register UserPromptSubmit hook in ~/.claude/hooks.json (always-on)
+#   codex-hook    Register UserPromptSubmit hook in ~/.codex/hooks/hooks.json (always-on)
 #   all           Install everywhere above that is applicable to this machine
 #
 # All three of claude/openclaw/hermes use the agentskills.io SKILL.md standard,
@@ -85,20 +87,53 @@ do_cursor()    {
   cp "$REPO_DIR/adapters/cursor/skill-hunter.md" "$DIR/.cursor/rules/skill-hunter.md"
   echo "[cursor] wrote $DIR/.cursor/rules/skill-hunter.md"
 }
+install_hook() {
+  # Registers hooks/skill-hunter-hook.sh under UserPromptSubmit in the given
+  # hooks.json. Merges with existing hooks without clobbering them. Requires jq.
+  local runtime="$1" hooks_json="$2"
+  local script="$REPO_DIR/hooks/skill-hunter-hook.sh"
+  chmod +x "$script" 2>/dev/null || true
+  mkdir -p "$(dirname "$hooks_json")"
+  if ! command -v jq >/dev/null; then
+    echo "[$runtime-hook] jq is required. brew install jq"; return 1
+  fi
+  local existing='{"hooks":{}}'
+  [[ -f "$hooks_json" ]] && existing=$(cat "$hooks_json")
+  printf '%s\n' "$existing" | jq --arg cmd "$script" '
+    .hooks.UserPromptSubmit = (
+      (.hooks.UserPromptSubmit // [])
+      | map(select((.hooks // []) | any(.command == $cmd) | not))
+    ) + [{
+      "hooks": [{
+        "type": "command",
+        "command": $cmd,
+        "statusMessage": "Skill Discovery Pass...",
+        "timeout": 5
+      }]
+    }]
+  ' > "$hooks_json.tmp" && mv "$hooks_json.tmp" "$hooks_json"
+  echo "[$runtime-hook] registered UserPromptSubmit → $script in $hooks_json"
+}
+do_claude_hook() { install_hook "claude" "$HOME/.claude/hooks.json"; }
+do_codex_hook()  { install_hook "codex"  "$HOME/.codex/hooks/hooks.json"; }
 
 case "$TARGET" in
-  claude)    do_claude ;;
-  claude-md) do_claude_md ;;
-  shared)    do_shared ;;
-  openclaw)  do_openclaw ;;
-  hermes)    do_hermes ;;
-  codex-md)  do_codex_md ;;
-  cursor)    do_cursor ;;
+  claude)       do_claude ;;
+  claude-md)    do_claude_md ;;
+  claude-hook)  do_claude_hook ;;
+  shared)       do_shared ;;
+  openclaw)     do_openclaw ;;
+  hermes)       do_hermes ;;
+  codex-md)     do_codex_md ;;
+  codex-hook)   do_codex_hook ;;
+  cursor)       do_cursor ;;
   all)
     do_claude
     do_shared       # covers Codex + gives OpenClaw a second read path (symlink)
     do_openclaw     # non-symlink fallback for OpenClaw which rejects symlinks
     do_hermes
+    do_claude_hook  # pre-turn hook — guarantees Skill Discovery Pass fires first
+    do_codex_hook
     echo "(skipping claude-md/codex-md/cursor — those are per-project; run them in the project dir)"
     ;;
   *) echo "Unknown target: $TARGET" >&2; usage ;;

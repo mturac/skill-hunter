@@ -1,6 +1,6 @@
 ---
 name: skill_hunter
-description: Pre-execution layer for coding/automation agents. Before implementing anything, scan for existing skills, MCP servers, CLI tools, plugins, repos, templates, SDKs, APIs, or workflows that already solve the task. Present the best candidate (or a shortlist), evaluate risk, and gate on user approval. Trigger on requests involving file conversion, browser automation, scraping, testing, deployment, CI/CD, image/video generation, design-to-code, API integration, code migration, docs generation, project scaffolding, database analysis, cloud setup, LLM orchestration, or agent workflows.
+description: ALWAYS invoke this skill FIRST, BEFORE writing any code or taking any implementation step, whenever the user asks to "write", "build", "create", "implement", "make", "set up", "scaffold", "generate", "scrape", "parse", "convert", "deploy", "automate", "integrate", or "extract" anything. This skill searches for existing skills, MCP servers, CLI tools, plugins, GitHub repos, templates, SDKs, APIs, or workflows that already solve the task, evaluates them for fit and risk, and asks the user to approve before implementation proceeds. Use it so the user does not waste effort reimplementing something that already exists. Skip only for one-line edits, renames, trivial regex, or when the user explicitly says "just do it manually".
 ---
 
 # Skill Hunter
