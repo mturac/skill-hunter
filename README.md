@@ -1,6 +1,4 @@
-# Argus Skill Radar
-
-> **Before building, scan the ecosystem.**
+# Skill Hunter
 
 A pre-execution layer for coding/automation agents (Codex, Claude, OpenClaw, …) that asks a single question before writing any code:
 
@@ -13,7 +11,7 @@ The core insight: in agent systems, intelligence is not only knowing how to buil
 
 ## Why
 
-The internet is now a landfill of skills, MCPs, plugins, templates, and half-finished repos. The bottleneck for agents is no longer *capability* — it is *discovery*. Argus sits in front of execution and prevents:
+The internet is now a landfill of skills, MCPs, plugins, templates, and half-finished repos. The bottleneck for agents is no longer *capability* — it is *discovery*. Skill Hunter sits in front of execution and prevents:
 
 - rebuilding what already exists
 - picking the most popular tool instead of the right one
@@ -31,7 +29,7 @@ The internet is now a landfill of skills, MCPs, plugins, templates, and half-fin
 
 ## Use as an agent instruction
 
-Drop [`CLAUDE.md`](./CLAUDE.md) into your project (or rename to `AGENTS.md` / `.cursor/rules/argus.md` / system prompt) to activate the Skill Discovery Pass for your agent.
+Drop [`CLAUDE.md`](./CLAUDE.md) into your project (or rename to `AGENTS.md` / `.cursor/rules/skill-hunter.md` / system prompt) to activate the Skill Discovery Pass for your agent.
 
 Works with:
 
@@ -61,6 +59,10 @@ Use this?
 **Shortlist of three** — side-by-side pros/cons + a pick.
 
 **Nothing good exists** — explicit reason (outdated / too broad / unsafe / low quality), then build manually.
+
+## Examples
+
+See [`examples/`](./examples) for real interactions — single-candidate pick, 3-way shortlist, skipped discovery, "build it yourself", and a credential-scope warning.
 
 ## Security posture
 
