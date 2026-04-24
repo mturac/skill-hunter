@@ -7,7 +7,7 @@
 **Skill Hunter**
 
 ```
-Three viable options:
+Aga burada 3 iyi aday var:
 
 1. Playwright + node-cron
    - Best for: sites with heavy JS rendering, login walls, anti-bot defenses
@@ -24,7 +24,8 @@ Three viable options:
    - Pros: one API call, handles JS + anti-bot
    - Cons: paid, rate limits, data leaves your network, needs API key
 
-Recommendation: use Playwright + node-cron, because 3 of the 5 sites you listed
-are SPAs and Scrapy would need a Splash/Selenium bolt-on anyway. Firecrawl is
-overkill and pushes pricing data through a third party.
+My recommendation:
+Use Playwright + node-cron, because 3 of the 5 sites you listed are SPAs and
+Scrapy would need a Splash/Selenium bolt-on anyway. Firecrawl is overkill and
+pushes pricing data through a third party.
 ```

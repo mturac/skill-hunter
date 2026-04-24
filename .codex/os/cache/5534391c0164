@@ -7,7 +7,8 @@
 **Skill Hunter**
 
 ```
-No reliable existing tool matches this task. Custom implementation is the better path.
+Aga buna uygun guvenilir bir skill/tool bulamadim.
+Bu durumda custom implementation daha mantikli.
 
 Reason:
 - YAML supersets I found (StrictYAML, HJSON) don't support your @include semantics.

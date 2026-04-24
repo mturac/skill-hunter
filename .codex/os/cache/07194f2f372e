@@ -27,29 +27,23 @@ The internet is now a landfill of skills, MCPs, plugins, templates, and half-fin
 5. **Present** one recommendation, a shortlist of three, or an honest "build it yourself".
 6. **Gate** on user approval before running anything external.
 
-## Install
+## Use as an agent instruction
 
-One command, pick your runtime:
+Drop [`CLAUDE.md`](./CLAUDE.md) into your project (or rename to `AGENTS.md` / `.cursor/rules/skill-hunter.md` / system prompt) to activate the Skill Discovery Pass for your agent.
 
-```bash
-./install.sh claude         # writes ./CLAUDE.md in the current project
-./install.sh claude-skill   # installs as ~/.claude/skills/skill-hunter/SKILL.md (user-wide)
-./install.sh codex          # writes ./AGENTS.md in the current project
-./install.sh cursor         # writes .cursor/rules/skill-hunter.md
-./install.sh openclaw       # copies the system prompt to clipboard to paste into OpenClaw
-./install.sh hermes         # prints the path to adapters/hermes/skill.json
-```
+Works with:
 
-Pre-built adapters live under [`adapters/`](./adapters): `claude-code/`, `claude-skill/`, `codex/`, `cursor/`, `openclaw/`, `hermes/`. The canonical source of truth is [`skill.md`](./skill.md) — all adapters derive from it.
-
-Works with: Claude Code, Codex / OpenAI agents, Cursor, OpenClaw, Hermes, Aider, Continue, and any runtime that honors a system prompt or `AGENTS.md`-style file.
+- Claude Code (`CLAUDE.md`)
+- Codex / OpenAI agents (`AGENTS.md` or system prompt)
+- Cursor (`.cursor/rules/`)
+- OpenClaw, Aider, Continue, custom LLM orchestrators — any runtime that honors a system prompt
 
 ## Response shapes
 
 **One good candidate**
 
 ```
-A reusable skill/tool looks like a good fit for this.
+Aga, bu is icin hazir bir skill/tool kullanilabilir gibi gorunuyor 😎
 
 Best candidate:
 - Name: …
