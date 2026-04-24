@@ -1,105 +1,97 @@
 #!/usr/bin/env bash
-# Skill Hunter installer — auto-installs the skill into the right runtime.
+# Skill Hunter — installer for Claude Code and Codex CLI.
+#
+# Each primary target installs both the skill (matched implicitly) and the
+# UserPromptSubmit hook (guaranteed to inject the Skill Discovery Pass even
+# when another skill would win the matcher).
 #
 # Usage:
-#   ./install.sh <target> [--dir <path>] [--force]
+#   ./install.sh <target> [--force]
 #
-# Targets:
-#   claude        Install as user-wide Claude Code skill (~/.claude/skills/skill_hunter/SKILL.md)
-#   claude-md     Write/append CLAUDE.md in the current (or --dir) project
-#   shared        Install to ~/.agents/skills/skill_hunter  (read by Codex AND OpenClaw)
-#   openclaw      Install to ~/.openclaw/skills/skill_hunter (OpenClaw reads this too; no symlink allowed)
-#   hermes        Install as Hermes skill (~/.hermes/skills/utility/skill_hunter/SKILL.md)
-#   codex-md      Write/append AGENTS.md in the current (or --dir) project
-#   cursor        Write .cursor/rules/skill-hunter.md in the current (or --dir) project
-#   claude-hook   Register UserPromptSubmit hook in ~/.claude/hooks.json (always-on)
-#   codex-hook    Register UserPromptSubmit hook in ~/.codex/hooks/hooks.json (always-on)
-#   all           Install everywhere above that is applicable to this machine
+# Primary:
+#   claude        Claude Code    (skill + hook, user-wide)
+#   codex         Codex CLI      (skill + hook, user-wide)
+#   all           Both runtimes
+#   uninstall     Remove skill + hook from both runtimes
+#   status        Show what is installed where
 #
-# All three of claude/openclaw/hermes use the agentskills.io SKILL.md standard,
-# so the same SKILL.md is copied verbatim.
+# Advanced:
+#   claude-skill | claude-hook | codex-skill | codex-hook | openclaw | hermes | cursor
+#
+# Flags:
+#   --force       Replace existing skill path / overwrite existing copy
+#
+# Requires: jq (for hook registration) — brew install jq
 
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_SRC="$REPO_DIR/SKILL.md"
+HOOK_SRC="$REPO_DIR/hooks/skill-hunter-hook.sh"
 TARGET="${1:-}"
-DIR="$PWD"
 FORCE=0
 
 shift || true
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --dir) DIR="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
     *) echo "Unknown flag: $1" >&2; exit 2 ;;
   esac
 done
 
-usage() { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+ok()   { printf '\033[32m  ✓\033[0m %s\n' "$*"; }
+warn() { printf '\033[33m  ⚠\033[0m %s\n' "$*"; }
+err()  { printf '\033[31m  ✗\033[0m %s\n' "$*" >&2; }
+hdr()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
+say()  { printf '  %s\n' "$*"; }
+
+usage() { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 [[ -z "$TARGET" ]] && usage
 
-install_skill() {
+require_jq() { command -v jq >/dev/null || { err "jq required — brew install jq"; exit 1; }; }
+
+remove_path() {
+  local p="$1"
+  if [[ -L "$p" || -f "$p" ]]; then rm -f "$p"
+  elif [[ -d "$p" ]]; then rm -r "$p"
+  fi
+}
+
+install_skill_symlink() {
+  local runtime="$1" dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  if [[ -L "$dest" ]]; then
+    local current; current="$(readlink "$dest")"
+    if [[ "$current" == "$REPO_DIR" ]]; then ok "[$runtime skill] already linked"; return 0; fi
+    [[ $FORCE -eq 0 ]] && { warn "[$runtime skill] symlink → $current (--force to replace)"; return 0; }
+    rm -f "$dest"
+  elif [[ -e "$dest" ]]; then
+    [[ $FORCE -eq 0 ]] && { warn "[$runtime skill] $dest exists (--force to replace)"; return 0; }
+    remove_path "$dest"
+  fi
+  ln -sfn "$REPO_DIR" "$dest"
+  ok "[$runtime skill] → $dest"
+}
+
+install_skill_copy() {
   local runtime="$1" dest_dir="$2"
   mkdir -p "$dest_dir"
   if [[ -f "$dest_dir/SKILL.md" && $FORCE -eq 0 ]]; then
-    echo "[$runtime] exists — skipping (use --force to overwrite): $dest_dir/SKILL.md"
+    warn "[$runtime skill] $dest_dir/SKILL.md exists (--force to overwrite)"
     return 0
   fi
-  cp "$REPO_DIR/SKILL.md" "$dest_dir/SKILL.md"
-  echo "[$runtime] installed → $dest_dir/SKILL.md"
+  cp "$SKILL_SRC" "$dest_dir/SKILL.md"
+  ok "[$runtime skill] → $dest_dir/SKILL.md (copy)"
 }
 
-install_md() {
-  local name="$1" filename="$2" src="$3"
-  local dest="$DIR/$filename"
-  if [[ -f "$dest" ]]; then
-    if grep -q "BEGIN skill-hunter" "$dest" 2>/dev/null; then
-      echo "[$name] already contains skill-hunter block — skipping: $dest"
-      return 0
-    fi
-    echo "" >> "$dest"
-    cat "$src" >> "$dest"
-    echo "[$name] appended to existing $dest"
-  else
-    cp "$src" "$dest"
-    echo "[$name] wrote $dest"
-  fi
-}
-
-do_claude()    { install_skill "claude"   "$HOME/.claude/skills/skill_hunter"; }
-do_openclaw()  { install_skill "openclaw" "$HOME/.openclaw/skills/skill_hunter"; }
-do_hermes()    { install_skill "hermes"   "$HOME/.hermes/skills/utility/skill_hunter"; }
-do_shared()    {
-  # ~/.agents/skills/ is read by Codex and OpenClaw. Codex follows symlinks,
-  # OpenClaw does not — so we prefer a symlink here for editability, and fall
-  # back to a copy if you pass --force on a non-Codex machine.
-  local dest="$HOME/.agents/skills/skill_hunter"
-  mkdir -p "$HOME/.agents/skills"
-  [[ -e "$dest" && $FORCE -eq 0 ]] && { echo "[shared] exists — skipping (use --force): $dest"; return 0; }
-  rm -f "$dest" 2>/dev/null
-  ln -sfn "$REPO_DIR" "$dest"
-  echo "[shared] symlinked → $dest  (read by Codex + OpenClaw)"
-}
-do_claude_md() { install_md "claude-md" "CLAUDE.md" "$REPO_DIR/adapters/claude-code/CLAUDE.md"; }
-do_codex_md()  { install_md "codex-md" "AGENTS.md" "$REPO_DIR/adapters/codex/AGENTS.md"; }
-do_cursor()    {
-  mkdir -p "$DIR/.cursor/rules"
-  cp "$REPO_DIR/adapters/cursor/skill-hunter.md" "$DIR/.cursor/rules/skill-hunter.md"
-  echo "[cursor] wrote $DIR/.cursor/rules/skill-hunter.md"
-}
 install_hook() {
-  # Registers hooks/skill-hunter-hook.sh under UserPromptSubmit in the given
-  # hooks.json. Merges with existing hooks without clobbering them. Requires jq.
   local runtime="$1" hooks_json="$2"
-  local script="$REPO_DIR/hooks/skill-hunter-hook.sh"
-  chmod +x "$script" 2>/dev/null || true
+  require_jq
+  chmod +x "$HOOK_SRC" 2>/dev/null || true
   mkdir -p "$(dirname "$hooks_json")"
-  if ! command -v jq >/dev/null; then
-    echo "[$runtime-hook] jq is required. brew install jq"; return 1
-  fi
   local existing='{"hooks":{}}'
   [[ -f "$hooks_json" ]] && existing=$(cat "$hooks_json")
-  printf '%s\n' "$existing" | jq --arg cmd "$script" '
+  printf '%s\n' "$existing" | jq --arg cmd "$HOOK_SRC" '
     .hooks.UserPromptSubmit = (
       (.hooks.UserPromptSubmit // [])
       | map(select((.hooks // []) | any(.command == $cmd) | not))
@@ -112,29 +104,75 @@ install_hook() {
       }]
     }]
   ' > "$hooks_json.tmp" && mv "$hooks_json.tmp" "$hooks_json"
-  echo "[$runtime-hook] registered UserPromptSubmit → $script in $hooks_json"
+  ok "[$runtime hook]  → $hooks_json"
 }
-do_claude_hook() { install_hook "claude" "$HOME/.claude/hooks.json"; }
-do_codex_hook()  { install_hook "codex"  "$HOME/.codex/hooks/hooks.json"; }
+
+uninstall_skill() {
+  local runtime="$1" dest="$2"
+  if [[ -L "$dest" || -e "$dest" ]]; then remove_path "$dest"; ok "[$runtime skill] removed"
+  else say "[$runtime skill] nothing to remove"; fi
+}
+
+uninstall_hook() {
+  local runtime="$1" hooks_json="$2"
+  require_jq
+  [[ -f "$hooks_json" ]] || { say "[$runtime hook]  no hooks.json"; return 0; }
+  jq --arg cmd "$HOOK_SRC" '
+    .hooks.UserPromptSubmit = (
+      (.hooks.UserPromptSubmit // [])
+      | map(.hooks |= (map(select(.command != $cmd))))
+      | map(select((.hooks // []) | length > 0))
+    )
+    | if (.hooks.UserPromptSubmit // [] | length) == 0 then del(.hooks.UserPromptSubmit) else . end
+  ' "$hooks_json" > "$hooks_json.tmp" && mv "$hooks_json.tmp" "$hooks_json"
+  ok "[$runtime hook]  deregistered"
+}
+
+do_claude_skill() { install_skill_symlink "claude" "$HOME/.claude/skills/skill_hunter"; }
+do_claude_hook()  { install_hook          "claude" "$HOME/.claude/hooks.json"; }
+do_codex_skill()  { install_skill_symlink "codex"  "$HOME/.codex/skills/skill_hunter"; }
+do_codex_hook()   { install_hook          "codex"  "$HOME/.codex/hooks/hooks.json"; }
+do_openclaw()     { install_skill_copy    "openclaw" "$HOME/.openclaw/skills/skill_hunter"; }
+do_hermes()       { install_skill_copy    "hermes" "$HOME/.hermes/skills/utility/skill_hunter"; }
+do_cursor()       {
+  mkdir -p ".cursor/rules"
+  cp "$REPO_DIR/adapters/cursor/skill-hunter.md" ".cursor/rules/skill-hunter.md"
+  ok "[cursor] → $PWD/.cursor/rules/skill-hunter.md"
+}
+
+do_claude() { hdr "Claude Code"; do_claude_skill; do_claude_hook; }
+do_codex()  { hdr "Codex CLI";   do_codex_skill;  do_codex_hook;  }
+
+do_status() {
+  hdr "Claude Code"
+  [[ -e "$HOME/.claude/skills/skill_hunter" ]] && ok "skill present" || warn "skill missing"
+  grep -q "skill-hunter-hook.sh" "$HOME/.claude/hooks.json" 2>/dev/null && ok "hook registered" || warn "hook missing"
+  hdr "Codex CLI"
+  [[ -e "$HOME/.codex/skills/skill_hunter" ]] && ok "skill present" || warn "skill missing"
+  grep -q "skill-hunter-hook.sh" "$HOME/.codex/hooks/hooks.json" 2>/dev/null && ok "hook registered" || warn "hook missing"
+}
+
+do_uninstall() {
+  hdr "Claude Code"
+  uninstall_skill "claude" "$HOME/.claude/skills/skill_hunter"
+  uninstall_hook  "claude" "$HOME/.claude/hooks.json"
+  hdr "Codex CLI"
+  uninstall_skill "codex"  "$HOME/.codex/skills/skill_hunter"
+  uninstall_hook  "codex"  "$HOME/.codex/hooks/hooks.json"
+}
 
 case "$TARGET" in
-  claude)       do_claude ;;
-  claude-md)    do_claude_md ;;
-  claude-hook)  do_claude_hook ;;
-  shared)       do_shared ;;
-  openclaw)     do_openclaw ;;
-  hermes)       do_hermes ;;
-  codex-md)     do_codex_md ;;
-  codex-hook)   do_codex_hook ;;
-  cursor)       do_cursor ;;
-  all)
-    do_claude
-    do_shared       # covers Codex + gives OpenClaw a second read path (symlink)
-    do_openclaw     # non-symlink fallback for OpenClaw which rejects symlinks
-    do_hermes
-    do_claude_hook  # pre-turn hook — guarantees Skill Discovery Pass fires first
-    do_codex_hook
-    echo "(skipping claude-md/codex-md/cursor — those are per-project; run them in the project dir)"
-    ;;
-  *) echo "Unknown target: $TARGET" >&2; usage ;;
+  claude)        do_claude ;;
+  codex)         do_codex ;;
+  all)           do_claude; do_codex ;;
+  uninstall)     do_uninstall ;;
+  status)        do_status ;;
+  claude-skill)  do_claude_skill ;;
+  claude-hook)   do_claude_hook ;;
+  codex-skill)   do_codex_skill ;;
+  codex-hook)    do_codex_hook ;;
+  openclaw)      do_openclaw ;;
+  hermes)        do_hermes ;;
+  cursor)        do_cursor ;;
+  *) err "Unknown target: $TARGET"; usage ;;
 esac

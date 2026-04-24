@@ -29,32 +29,62 @@ The internet is now a landfill of skills, MCPs, plugins, templates, and half-fin
 
 ## Install
 
-Claude Code, Codex, OpenClaw, and Hermes all implement the [agentskills.io](https://agentskills.io) `SKILL.md` standard — one [`SKILL.md`](./SKILL.md) file works for all of them.
+Skill Hunter ships as a **skill + hook pair** for each runtime:
+
+- The **skill** (`SKILL.md`) gets picked up when the user's prompt matches its description — the standard [agentskills.io](https://agentskills.io) path.
+- The **hook** (`hooks/skill-hunter-hook.sh`) injects the Skill Discovery Pass into *every* interactive turn via `UserPromptSubmit`, so the pass fires even when a more specific skill would otherwise win the matcher.
+
+Clone the repo, then run the installer:
 
 ```bash
-./install.sh shared      # ~/.agents/skills/skill_hunter     (Codex + OpenClaw — user-wide)
-./install.sh claude      # ~/.claude/skills/skill_hunter     (Claude Code — user-wide)
-./install.sh hermes      # ~/.hermes/skills/utility/skill_hunter
-./install.sh openclaw    # ~/.openclaw/skills/skill_hunter   (only if OpenClaw ignores ~/.agents/skills)
-./install.sh all         # every user-wide location that applies
+git clone https://github.com/mturac/skill-hunter.git
+cd skill-hunter
+./install.sh all           # Claude Code + Codex CLI (skill + hook)
+./install.sh status        # verify
 ```
 
-Per-project (current directory, not user-wide):
+Per-runtime:
 
 ```bash
-./install.sh claude-md   # ./CLAUDE.md
-./install.sh codex-md    # ./AGENTS.md
-./install.sh cursor      # ./.cursor/rules/skill-hunter.md
+./install.sh claude        # Claude Code   — ~/.claude/skills/skill_hunter + ~/.claude/hooks.json
+./install.sh codex         # Codex CLI     — ~/.codex/skills/skill_hunter + ~/.codex/hooks/hooks.json
+./install.sh uninstall     # remove skill + hook from both
 ```
 
-### Runtime notes
+Each runtime target installs **both** the skill and the hook. The skill is symlinked back to the cloned repo so local edits propagate without reinstalling. Hook registration is idempotent (jq-merged into existing `hooks.json`, no clobbering).
 
-- **Codex** scans `~/.agents/skills/` and `$REPO/.agents/skills/` and **follows symlinks** — `shared` symlinks this repo in so edits propagate instantly. [Codex Skills docs](https://developers.openai.com/codex/skills).
-- **OpenClaw** scans `~/.agents/skills/` and `~/.openclaw/skills/`, but **rejects symlinks** (the path must resolve inside its skill root). Use the `openclaw` target when a real copy is needed.
-- **Claude Code** reads `~/.claude/skills/`, auto-loads on next session.
-- **Hermes** reads `~/.hermes/skills/`, hot-reloaded (no restart).
+Optional runtimes (no hooks — skill only):
 
-The canonical source of truth is [`SKILL.md`](./SKILL.md). Per-project markdown variants live under [`adapters/`](./adapters) (`claude-code/`, `codex/`, `cursor/`). Codex-specific UI metadata lives in [`agents/openai.yaml`](./agents/openai.yaml).
+```bash
+./install.sh openclaw      # ~/.openclaw/skills/skill_hunter   (copy — OpenClaw rejects symlinks)
+./install.sh hermes        # ~/.hermes/skills/utility/skill_hunter
+./install.sh cursor        # ./.cursor/rules/skill-hunter.md (per-project)
+```
+
+**Requires:** `jq` (for hook registration). `brew install jq` on macOS.
+
+### What installs where
+
+| Runtime   | Skill path                                  | Hook path                            |
+|-----------|---------------------------------------------|--------------------------------------|
+| Claude Code | `~/.claude/skills/skill_hunter → repo`    | `~/.claude/hooks.json`               |
+| Codex CLI   | `~/.codex/skills/skill_hunter → repo`     | `~/.codex/hooks/hooks.json`          |
+| OpenClaw    | `~/.openclaw/skills/skill_hunter/SKILL.md`  | — (OpenClaw hook API differs)        |
+| Hermes      | `~/.hermes/skills/utility/skill_hunter/SKILL.md` | —                               |
+
+The hook only fires in **interactive** Claude / Codex sessions. `codex exec` and Claude's `-p` headless modes currently do not fire `UserPromptSubmit` — for those, the skill's implicit matching is the only mechanism.
+
+## Verify it works
+
+Open `claude` or `codex` (interactive TUI). Type:
+
+```
+Scrape e-ticaret sitelerinden fiyat veri çekip günlük CSV olarak kaydet.
+```
+
+Expected: a short **"Skill Discovery Pass..."** status indicator, then a structured reply beginning with "Best candidate:" (Name / Type / Why it fits / Risk / Effort) or "Three viable options:", followed by **"Use this? 1/2/3"** before any code is written.
+
+If the pass doesn't fire, run `./install.sh status` and check that both `skill` and `hook` show `✓` for your runtime.
 
 ## Response shapes
 
