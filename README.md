@@ -93,6 +93,12 @@ cd skill-hunter
 
 The hook only fires in interactive Claude/Codex sessions. Headless modes rely on skill matching.
 
+## Provider Status
+
+Skill Hunter already ships through real provider surfaces: Claude Code plugin metadata, Codex CLI plugin metadata, OpenClaw/ClawHub install paths, `npx skills`, and local installer targets.
+
+The future work is automated discovery provider adapters: code that queries ClawHub, GitHub, MCP registries, npm, PyPI, or local docs and returns scored candidates through a CLI/API.
+
 ## Output Shape
 
 ```text
@@ -138,13 +144,13 @@ Benchmarks live in [benchmarks/tasks.yaml](./benchmarks/tasks.yaml). They compar
 
 - P0: centralized prompts, docs, benchmark examples, install/version consistency.
 - P1: Trust Score implementation, security audit model, CLI skeleton, local audit mode, JSON output.
-- P2: real ClawHub/GitHub/MCP/npm/PyPI providers, GitHub Action, demo GIF, public benchmark results.
+- P2: automated ClawHub/GitHub/MCP/npm/PyPI discovery adapters, GitHub Action, demo GIF, public benchmark results.
 
 See [docs/ROADMAP.md](./docs/ROADMAP.md).
 
 ## Known Limitations
 
-- Provider discovery is not implemented yet; current behavior is instruction/hook driven.
+- Distribution provider surfaces are real; automated discovery adapters are not implemented yet.
 - Benchmark results are illustrative until a runner exists.
 - OpenClaw currently installs a skill copy, not a hook.
 - Skill Hunter reduces unsafe behavior, but does not replace human security review.

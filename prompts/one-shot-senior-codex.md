@@ -18,7 +18,7 @@ Improve Skill Hunter from an instruction-only agent behavior layer into a credib
 8. Add cheap meaningful tests where applicable.
 
 ## Constraints
-No heavy dependencies without approval. Real provider claims require implementation evidence. Preserve install paths by default; broken paths can be fixed. Keep changes reviewable. Prefer docs and small architecture scaffolding over fake functionality.
+No heavy dependencies without approval. Automated discovery adapter claims require implementation evidence. Preserve install paths by default; broken paths can be fixed. Keep changes reviewable. Prefer docs and small architecture scaffolding over fake functionality.
 
 ## Done
 Changed files, what changed, how to test, and what remains.

@@ -15,8 +15,10 @@ Before implementation, the agent should understand the task, search for reusable
 - `npx skills` compatible skill install
 - Local clone installer
 
+These are real distribution/provider surfaces today. Automated discovery provider adapters are a separate future layer.
+
 ## Non-Goals
 - No silent installs
 - No credential collection
-- No guarantee that external providers are searched until provider integrations are implemented
+- No guarantee that external registries are searched automatically until discovery adapters are implemented
 - No replacement for human security review

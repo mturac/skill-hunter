@@ -13,7 +13,7 @@
 - Add local audit mode and JSON output schema.
 
 ## P2
-- Add real ClawHub, GitHub, MCP, npm, and PyPI providers.
+- Add automated ClawHub, GitHub, MCP, npm, and PyPI discovery adapters.
 - Add GitHub Action prototype.
 - Add demo GIF script.
 - Publish public benchmark results.

@@ -10,7 +10,7 @@ You are improving the Skill Hunter repository. Keep the product identity: a pre-
 - Add reusable prompts in `prompts/`.
 - Add examples for scraping, PDFs, PR review, workspace automation, social drafting with approval, database import, and API integration.
 - Add benchmark tasks comparing baseline agent behavior with Skill Hunter guided behavior.
-- Add a minimal CLI skeleton only if it is reviewable and does not imply real providers.
+- Add a minimal CLI skeleton only if it is reviewable and does not imply automated discovery adapters that are not implemented.
 
 ## Done
 Return changed files, verification, and remaining work.

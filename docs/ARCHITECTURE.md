@@ -11,5 +11,9 @@ Skill Hunter currently has three layers.
 ## 3. Product Scaffolding
 `docs/`, `prompts/`, and `benchmarks/` define the next product layer: provider discovery, trust scoring, security audits, and measurable behavior changes.
 
+## Current Provider Surfaces
+
+Skill Hunter already has real distribution surfaces for Claude Code, Codex CLI, OpenClaw/ClawHub, `npx skills`, and local installer workflows.
+
 ## Future CLI Shape
-A future CLI should keep all network access behind provider interfaces and start with safe, inspect-only commands: `recommend`, `audit`, `compare`, `explain`, and `benchmark`.
+A future CLI should keep automated discovery network access behind provider adapters and start with safe, inspect-only commands: `recommend`, `audit`, `compare`, `explain`, and `benchmark`.
