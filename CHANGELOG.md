@@ -2,6 +2,21 @@
 
 All notable changes follow [keepachangelog.com](https://keepachangelog.com) and [semver](https://semver.org).
 
+## [Unreleased]
+
+### Added
+- Centralized reusable prompt pack under `prompts/` with a shared precedence and accountability contract.
+- Product, architecture, trust score, security model, benchmark, and roadmap docs under `docs/`.
+- Benchmark task examples and evaluator rubric under `benchmarks/`.
+
+### Changed
+- README now leads with the product promise, before/after demo, decision model, safety model, benchmarks, roadmap, and limitations.
+- Skill instructions now include explicit decision values and stronger approval gates.
+- Plugin manifests now match the latest `1.1.1` release version.
+
+### Fixed
+- Adapter copy-paste headers for Codex and Cursor.
+
 ## [1.1.1] — 2026-04-24
 
 ### Added

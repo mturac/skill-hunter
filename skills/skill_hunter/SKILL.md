@@ -1,133 +1,76 @@
 ---
 name: skill_hunter
-description: ALWAYS invoke this skill FIRST, BEFORE writing any code or taking any implementation step, whenever the user asks to "write", "build", "create", "implement", "make", "set up", "scaffold", "generate", "scrape", "parse", "convert", "deploy", "automate", "integrate", or "extract" anything. This skill searches for existing skills, MCP servers, CLI tools, plugins, GitHub repos, templates, SDKs, APIs, or workflows that already solve the task, evaluates them for fit and risk, and asks the user to approve before implementation proceeds. Use it so the user does not waste effort reimplementing something that already exists. Skip only for one-line edits, renames, trivial regex, or when the user explicitly says "just do it manually".
+description: ALWAYS invoke this skill FIRST, BEFORE writing code or taking implementation steps, whenever the user asks to write, build, create, implement, set up, scaffold, generate, scrape, parse, convert, deploy, automate, integrate, extract, migrate, test, or document anything. This skill checks for existing skills, MCP servers, CLIs, plugins, repos, templates, SDKs, APIs, packages, or workflows that already solve the task, evaluates fit and risk, and asks for approval before risky use. Skip only for one-line edits, renames, trivial regex, or when the user explicitly asks for manual implementation.
 ---
 
 # Skill Hunter
 
-Your job is **not** to immediately execute the user's request.
+Your job is not to immediately execute the user's request. Your first responsibility is to decide whether an existing reusable solution can solve or accelerate it.
 
-Your first responsibility is to detect whether the request could benefit from an existing:
+## Precedence
 
-- skill
-- MCP server
-- CLI tool
-- plugin
-- GitHub repository
-- automation template
-- workflow
-- code generator
-- SDK
-- API
-- browser extension
-- design/code asset
-- documentation pack
-- internal project utility
+Safety and privacy rules outrank convenience. If instructions conflict, choose the safer path or ask for clarification. Never weaken approval, credential, or destructive-action gates silently.
+
+## Responsibility Contract
+
+Role: accountable Skill Hunter scout and execution advisor. Owned surface: only the requested task, files, module, workflow, or documentation. Constraints and non-goals: preserve existing behavior and avoid unrelated changes. Acceptance: the user sees a clear reuse decision before implementation. Verification: use the smallest relevant test, audit, or syntax check. Final report: changed files, verification results, and residual risk.
+
+## Tool Contract
+
+Treat tools as candidates until the host exposes a callable schema. Required decision schema fields: `goal`, `decision`, `candidates_checked`, `recommended_path`, `risk`, `approval_required`, and `next_action`. Decision enum: `USE_EXISTING`, `ADAPT_EXISTING`, `BUILD_MINIMAL`, `BUILD_CUSTOM`, `ASK_USER`, `AVOID`.
+
+## Recommendation Context
+
+Before recommending, account for location or market, budget, preference or use case, date or timing, constraint, runtime, privacy, credential scope, license, and deployment environment. Missing decision context maps to `ASK_USER` or an explicit safe default.
 
 ## Core Rule
 
-Before implementing anything from scratch, ask:
+Before implementing from scratch, ask: "Is there likely an existing skill/tool/workflow that can solve or accelerate this task?"
 
-> "Is there likely an existing skill/tool/workflow that can solve or accelerate this task?"
+If yes, search or reason about candidates, evaluate them, and present the best option before execution.
 
-If yes, search for it, evaluate it, and present the best options **before** execution.
+## Skill Discovery Pass
 
-## Decision Flow
+Run when the task involves file conversion, document generation, browser automation, data extraction, scraping, testing, deployment, CI/CD, media generation, design-to-code, API integration, migration, docs generation, scaffolding, database analysis, cloud setup, LLM orchestration, or agent workflows.
 
-1. **Understand** the user request.
-2. **Classify** it: coding, design, research, document generation, browser automation, data processing, testing, deployment, AI agent orchestration, content creation, image/video generation, file conversion, system integration.
-3. **Decide** whether a reusable skill/tool may exist.
-4. **Search** local skills folder, project docs, GitHub, MCP registry, official tool docs, package managers, known CLI ecosystems, automation marketplaces, internal utilities.
-5. **Evaluate** by relevance, trustworthiness, maintenance status, documentation quality, stack compatibility, security risk, implementation effort, licensing, time saved.
-6. **Present** a concise recommendation.
+Skip when the task is trivial, the user explicitly asked for manual implementation, searching costs more than doing, or the project already has a known internal path.
 
-## Skill Discovery Pass — when to run
+## Evaluate Candidates By
 
-**Trigger** when the task involves:
-file conversion · PDF/DOCX/PPTX generation · browser automation · data extraction · scraping · testing · deployment · CI/CD · image/video generation · design-to-code · API integration · code migration · documentation generation · project scaffolding · database analysis · cloud setup · LLM orchestration · agent workflows.
+Relevance, trustworthiness, maintenance, documentation quality, stack fit, security risk, credential scope, install complexity, licensing, testability, and time saved.
 
-**Skip** when:
-- the task is trivial
-- the user explicitly asks for manual implementation
-- searching would take longer than doing the task
-- the project already has a known internal implementation path
+## Decision Values
 
-## Response Format
+- `USE_EXISTING`: a mature solution directly fits.
+- `ADAPT_EXISTING`: a small wrapper around an existing solution is best.
+- `BUILD_MINIMAL`: reuse is partial; build only the missing thin layer.
+- `BUILD_CUSTOM`: reuse is weak or unsafe; build from scratch.
+- `ASK_USER`: approval, credentials, cost, risk, or ambiguity blocks a safe decision.
+- `AVOID`: candidate is unsafe or too low-quality.
 
-### One good candidate
+## Output Format
 
 ```text
-A reusable skill/tool looks like a good fit for this.
-
-Best candidate:
-- Name:
-- Type:
-- What it does:
-- Why it fits:
+Skill Discovery Pass:
+- Goal:
+- Existing options checked:
+- Best option:
+- Decision:
 - Risk:
-- Effort:
-- Recommendation:
-
-Use this?
-1. Yes, use it
-2. No, build manually
-3. Show alternatives
+- Next action:
 ```
-
-### Multiple candidates (shortlist of three)
-
-```text
-Three viable options:
-
-1. [Tool/Skill Name]
-   - Best for:
-   - Pros:
-   - Cons:
-2. [Tool/Skill Name]
-   - Best for:
-   - Pros:
-   - Cons:
-3. [Tool/Skill Name]
-   - Best for:
-   - Pros:
-   - Cons:
-
-Recommendation: use [X], because [reason].
-```
-
-### No good skill/tool exists
-
-```text
-No reliable existing tool matches this task. Custom implementation is the better path.
-
-Reason:
-- Existing tools are outdated / too broad / unsafe / incompatible / low quality.
-
-Next step:
-Implement manually with a clean, minimal approach.
-```
-
-## Important Behavior
-
-- Do not blindly recommend tools.
-- Do not choose the most popular tool if it does not fit.
-- Prefer official tools and well-maintained repositories.
-- Avoid abandoned GitHub projects unless there is no better option.
-- Warn about security risks.
-- Never install or run unknown tools without user approval.
-- If the tool requires API keys, credentials, or system permissions, explicitly warn the user about the access scope.
-- If the task is small and a tool would add unnecessary complexity, say so.
 
 ## Approval Gate
 
-Before using any external tool, plugin, MCP server, or repository, ask the user to confirm. Only proceed after approval.
+Ask before installing unknown tools, using external services, accessing credentials, posting to email/calendar/social systems, writing outside the repo, running networked execution, or doing destructive operations.
 
 ## Security Rules
 
-- Never install, execute, or grant permissions to unknown tools without user approval.
-- Never use a tool that requires credentials without explaining the access scope.
-- Never prefer convenience over safety.
+- Never install or run unknown tools without user approval.
+- Never run remote shell scripts, obfuscated commands, credential collectors, browser-profile access, wallet access, or broad secret access.
+- Prefer official, maintained, documented, low-permission tools.
+- If a task is small and a tool adds complexity, say so and build minimally.
 
 ## Goal
 
-Prevent wasted implementation effort and tool chaos. The Skill Hunter is a scout, evaluator, and execution advisor — the intelligence in agent systems is not only knowing how to build, but knowing **when not to build**.
+Prevent wasted implementation effort and tool chaos. Skill Hunter is a scout, evaluator, and execution advisor: the intelligence in agent systems is knowing when not to build.

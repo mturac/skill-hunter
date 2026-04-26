@@ -2,47 +2,48 @@
 
 ![Skill Hunter — before you build, scan the ecosystem](./assets/og-image.png)
 
-A pre-execution layer for coding/automation agents (Codex, Claude, OpenClaw, …) that asks a single question before writing any code:
+**Stop your AI agent from reinventing the wheel.**
 
-> "Is there already a skill, MCP server, CLI tool, plugin, repo, template, SDK, API, or workflow that can solve this — or accelerate it?"
+Skill Hunter is a pre-execution layer for coding and automation agents. It makes agents check for existing skills, MCP servers, CLIs, packages, APIs, templates, repos, and workflows before building from scratch.
 
-If yes, it surfaces the best candidate, evaluates risk, and asks for approval before use.
-If no, it says so plainly and builds manually with a clean, minimal approach.
+> Your agent should check the toolbox before building a hammer.
 
-The core insight: in agent systems, intelligence is not only knowing how to build — it is knowing **when not to build**.
+## The Problem
 
-## Why
+Agents are good at writing code, sometimes too good. They will happily generate a custom scraper, parser, integration, or workflow even when a safer maintained tool already exists.
 
-The internet is now a landfill of skills, MCPs, plugins, templates, and half-finished repos. The bottleneck for agents is no longer *capability* — it is *discovery*. Skill Hunter sits in front of execution and prevents:
+Skill Hunter adds the missing pause: understand the task, search the ecosystem, compare options, score risk, ask for approval when needed, then reuse or build minimally.
 
-- rebuilding what already exists
-- picking the most popular tool instead of the right one
-- pulling in abandoned or unsafe repos
-- silently installing things that need credentials or system access
+## Before / After
 
-## How it works
+**Before**
 
-1. **Classify** the request (coding, design, browser automation, file conversion, scraping, CI/CD, …).
-2. **Decide** whether a reusable skill/tool likely exists.
-3. **Search** local skills, project docs, GitHub, MCP registry, package managers, tool docs.
-4. **Evaluate** candidates by relevance, maintenance, docs, stack fit, security, effort, licensing.
-5. **Present** one recommendation, a shortlist of three, or an honest "build it yourself".
-6. **Gate** on user approval before running anything external.
+User asks: "Parse these PDFs and extract invoices."
+
+Agent writes a custom parser immediately.
+
+**After Skill Hunter**
+
+Agent checks PDF libraries, OCR tools, invoice extraction APIs, existing repo utilities, and asks whether accuracy, cost, privacy, or offline processing matters before writing code.
+
+## What It Does
+
+1. Classifies the request.
+2. Checks whether reusable solutions likely exist.
+3. Compares candidates by fit, maintenance, permissions, security, docs, license, and effort.
+4. Recommends reuse, adaptation, minimal build, custom build, or asking the user.
+5. Gates risky installs, credentials, external services, posting, and destructive actions on approval.
 
 ## Install
 
-Five distribution channels:
-
-### 1. Claude Code plugin (marketplace)
+### Claude Code plugin
 
 ```text
 /plugin marketplace add mturac/skill-hunter
 /plugin install skill-hunter@skill-hunter
 ```
 
-Claude installs both the skill and the `UserPromptSubmit` hook from the plugin manifest — no clone, no shell script.
-
-### 2. Codex CLI plugin
+### Codex CLI plugin
 
 ```bash
 codex plugin marketplace add mturac/skill-hunter
@@ -55,128 +56,103 @@ Then enable it in `~/.codex/config.toml`:
 enabled = true
 ```
 
-Codex pulls the marketplace straight from GitHub, no central registry.
-
-### 3. OpenClaw (ClawHub registry)
+### OpenClaw / ClawHub
 
 ```bash
 openclaw skills install openclaw-skill-hunter
-# or via ClawHub CLI
+# or
 clawhub install openclaw-skill-hunter
 ```
 
-Published at [clawhub.com/mturac/openclaw-skill-hunter](https://clawhub.com). Drops into `~/.openclaw/skills/`.
+Published at [clawhub.com/mturac/openclaw-skill-hunter](https://clawhub.com/mturac/openclaw-skill-hunter).
 
-### 4. `npx skills` (Hermes and any other agentskills.io-compatible runtime)
+### `npx skills`
 
 ```bash
 npx skills add mturac/skill-hunter@skill_hunter -g -y
 ```
 
-Installs into `~/.agents/skills/skill_hunter/`. The `-g` flag is user-wide; drop it for a per-project install into `./.agents/skills/`.
-
-### 5. Clone + `./install.sh` (development or non-plugin hosts)
-
-Useful when you want the skill to live as a symlink to a checkout so edits propagate without reinstalling:
+### Local clone
 
 ```bash
 git clone https://github.com/mturac/skill-hunter.git
 cd skill-hunter
-./install.sh all           # Claude Code + Codex CLI (skill + hook)
-./install.sh status        # verify
+./install.sh all
+./install.sh status
 ```
 
----
+## Supported Runtimes
 
-Skill Hunter ships as a **skill + hook pair** for each runtime:
+| Runtime | Install surface | Hook support |
+|---|---|---|
+| Claude Code | plugin or `./install.sh claude` | interactive `UserPromptSubmit` |
+| Codex CLI | plugin or `./install.sh codex` | interactive `UserPromptSubmit` |
+| OpenClaw | `./install.sh openclaw` or ClawHub | skill only |
+| Hermes / agentskills.io | `npx skills` or `./install.sh hermes` | skill only |
+| Cursor | `./install.sh cursor` | rule file |
 
-- The **skill** (`SKILL.md`) gets picked up when the user's prompt matches its description — the standard [agentskills.io](https://agentskills.io) path.
-- The **hook** (`hooks/skill-hunter-hook.sh`) injects the Skill Discovery Pass into *every* interactive turn via `UserPromptSubmit`, so the pass fires even when a more specific skill would otherwise win the matcher.
+The hook only fires in interactive Claude/Codex sessions. Headless modes rely on skill matching.
 
-Clone the repo, then run the installer:
+## Output Shape
 
-```bash
-git clone https://github.com/mturac/skill-hunter.git
-cd skill-hunter
-./install.sh all           # Claude Code + Codex CLI (skill + hook)
-./install.sh status        # verify
+```text
+Skill Discovery Pass:
+- Goal:
+- Existing options checked:
+- Best option:
+- Decision:
+- Risk:
+- Next action:
 ```
 
-Per-runtime:
+Decision values: `USE_EXISTING`, `ADAPT_EXISTING`, `BUILD_MINIMAL`, `BUILD_CUSTOM`, `ASK_USER`, `AVOID`.
 
-```bash
-./install.sh claude        # Claude Code   — ~/.claude/skills/skill_hunter + ~/.claude/hooks.json
-./install.sh codex         # Codex CLI     — ~/.codex/skills/skill_hunter + ~/.codex/hooks/hooks.json
-./install.sh uninstall     # remove skill + hook from both
-```
+## Trust Score
 
-Each runtime target installs **both** the skill and the hook. The skill is symlinked back to the cloned repo so local edits propagate without reinstalling. Hook registration is idempotent (jq-merged into existing `hooks.json`, no clobbering).
+The planned Trust Score turns discovery into a transparent decision model:
 
-Optional runtimes (no hooks — skill only):
+- Relevance, 0-25
+- Maintenance, 0-20
+- Adoption, 0-15
+- Security, 0-25
+- Documentation, 0-10
+- Fit cost, 0-5
 
-```bash
-./install.sh openclaw      # ~/.openclaw/skills/skill_hunter   (copy — OpenClaw rejects symlinks)
-./install.sh hermes        # ~/.hermes/skills/utility/skill_hunter
-./install.sh cursor        # ./.cursor/rules/skill-hunter.md (per-project)
-```
+See [docs/TRUST_SCORE.md](./docs/TRUST_SCORE.md).
 
-**Requires:** `jq` (for hook registration). `brew install jq` on macOS.
+## Security Model
 
-### What installs where
+Skill Hunter never silently installs or executes unknown tools. Approval is required for risky installs, credentials, paid/external services, email/calendar/social posting, networked execution, destructive commands, or writes outside the repo.
 
-| Runtime   | Skill path                                  | Hook path                            |
-|-----------|---------------------------------------------|--------------------------------------|
-| Claude Code | `~/.claude/skills/skill_hunter → repo`    | `~/.claude/hooks.json`               |
-| Codex CLI   | `~/.codex/skills/skill_hunter → repo`     | `~/.codex/hooks/hooks.json`          |
-| OpenClaw    | `~/.openclaw/skills/skill_hunter/SKILL.md`  | — (OpenClaw hook API differs)        |
-| Hermes      | `~/.hermes/skills/utility/skill_hunter/SKILL.md` | —                               |
-
-The hook only fires in **interactive** Claude / Codex sessions. `codex exec` and Claude's `-p` headless modes currently do not fire `UserPromptSubmit` — for those, the skill's implicit matching is the only mechanism.
-
-## Verify it works
-
-Open `claude` or `codex` (interactive TUI). Type:
-
-```
-Scrape e-ticaret sitelerinden fiyat veri çekip günlük CSV olarak kaydet.
-```
-
-Expected: a short **"Skill Discovery Pass..."** status indicator, then a structured reply beginning with "Best candidate:" (Name / Type / Why it fits / Risk / Effort) or "Three viable options:", followed by **"Use this? 1/2/3"** before any code is written.
-
-If the pass doesn't fire, run `./install.sh status` and check that both `skill` and `hook` show `✓` for your runtime.
-
-## Response shapes
-
-**One good candidate**
-
-```
-A reusable skill/tool looks like a good fit for this.
-
-Best candidate:
-- Name: …
-- Type: …
-- Why it fits: …
-- Risk: …
-- Effort: …
-
-Use this?
-1. Yes  2. No, build manually  3. Show alternatives
-```
-
-**Shortlist of three** — side-by-side pros/cons + a pick.
-
-**Nothing good exists** — explicit reason (outdated / too broad / unsafe / low quality), then build manually.
+See [docs/SECURITY_MODEL.md](./docs/SECURITY_MODEL.md).
 
 ## Examples
 
-See [`examples/`](./examples) for real interactions — single-candidate pick, 3-way shortlist, skipped discovery, "build it yourself", and a credential-scope warning.
+See [examples/](./examples) for PDF conversion, scraping, trivial-skip behavior, custom parser decisions, and credential-scope warnings.
 
-## Security posture
+## Benchmarks
 
-- Never install or run unknown tools without approval.
-- Always explain credential/permission scope before recommending a tool that needs them.
-- Prefer official and well-maintained sources. Flag abandoned repos.
+Benchmarks live in [benchmarks/tasks.yaml](./benchmarks/tasks.yaml). They compare baseline agent behavior against Skill Hunter guided behavior across scraping, PDF parsing, PR review, and approval-gated social posting.
+
+## Roadmap
+
+- P0: centralized prompts, docs, benchmark examples, install/version consistency.
+- P1: Trust Score implementation, security audit model, CLI skeleton, local audit mode, JSON output.
+- P2: real ClawHub/GitHub/MCP/npm/PyPI providers, GitHub Action, demo GIF, public benchmark results.
+
+See [docs/ROADMAP.md](./docs/ROADMAP.md).
+
+## Known Limitations
+
+- Provider discovery is not implemented yet; current behavior is instruction/hook driven.
+- Benchmark results are illustrative until a runner exists.
+- OpenClaw currently installs a skill copy, not a hook.
+- Skill Hunter reduces unsafe behavior, but does not replace human security review.
+
+## Contributing
+
+Good first issues: provider stubs, Trust Score implementation, benchmark runner, adapter consistency, JSON output mode, and release checklist.
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE).
+MIT — see [LICENSE](./LICENSE).
