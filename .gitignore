@@ -3,5 +3,13 @@ node_modules/
 .env
 .env.*
 *.log
+*.tmp
 .idea/
 .vscode/
+
+# Tool cache directories that should never be committed.
+.codex/
+.opusdei/
+.claude/cache/
+__pycache__/
+.pytest_cache/

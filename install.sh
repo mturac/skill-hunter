@@ -88,10 +88,24 @@ install_skill_copy() {
 install_hook() {
   local runtime="$1" hooks_json="$2"
   require_jq
-  chmod +x "$HOOK_SRC" 2>/dev/null || true
+  # Make the hook executable, but fail loudly so a wrong permission state
+  # never silently produces a non-firing hook (review finding).
+  if ! chmod +x "$HOOK_SRC"; then
+    err "[$runtime hook]  cannot chmod +x $HOOK_SRC — fix permissions and re-run"
+    exit 1
+  fi
   mkdir -p "$(dirname "$hooks_json")"
   local existing='{"hooks":{}}'
-  [[ -f "$hooks_json" ]] && existing=$(cat "$hooks_json")
+  if [[ -f "$hooks_json" ]]; then
+    # Validate JSON before merging: a corrupt hooks.json was a silent
+    # data-loss hazard with the old `cat | jq` pipeline.
+    if ! jq -e . "$hooks_json" >/dev/null 2>&1; then
+      err "[$runtime hook]  $hooks_json is not valid JSON; refusing to overwrite"
+      err "                fix or remove the file, then re-run install"
+      exit 1
+    fi
+    existing=$(cat "$hooks_json")
+  fi
   printf '%s\n' "$existing" | jq --arg cmd "$HOOK_SRC" '
     .hooks.UserPromptSubmit = (
       (.hooks.UserPromptSubmit // [])
@@ -144,13 +158,30 @@ do_cursor()       {
 do_claude() { hdr "Claude Code"; do_claude_skill; do_claude_hook; }
 do_codex()  { hdr "Codex CLI";   do_codex_skill;  do_codex_hook;  }
 
+_check_hook_path() {
+  # Verify that the hook command registered in hooks.json still exists and is
+  # executable. Warns when the repository has been moved (fragile-absolute-
+  # path concern from the review).
+  local hooks_json="$1"
+  [[ -f "$hooks_json" ]] || return 0
+  local cmd; cmd=$(jq -r '.hooks.UserPromptSubmit[]?.hooks[]?.command // empty' "$hooks_json" 2>/dev/null \
+    | grep -F skill-hunter-hook.sh | head -1)
+  [[ -z "$cmd" ]] && return 0
+  if [[ ! -x "$cmd" ]]; then
+    warn "hook command $cmd is no longer executable — re-run ./install.sh after moving the repo"
+  fi
+}
+
+
 do_status() {
   hdr "Claude Code"
   [[ -e "$HOME/.claude/skills/skill_hunter" ]] && ok "skill present" || warn "skill missing"
   grep -q "skill-hunter-hook.sh" "$HOME/.claude/hooks.json" 2>/dev/null && ok "hook registered" || warn "hook missing"
+  _check_hook_path "$HOME/.claude/hooks.json"
   hdr "Codex CLI"
   [[ -e "$HOME/.codex/skills/skill_hunter" ]] && ok "skill present" || warn "skill missing"
   grep -q "skill-hunter-hook.sh" "$HOME/.codex/hooks/hooks.json" 2>/dev/null && ok "hook registered" || warn "hook missing"
+  _check_hook_path "$HOME/.codex/hooks/hooks.json"
 }
 
 do_uninstall() {
